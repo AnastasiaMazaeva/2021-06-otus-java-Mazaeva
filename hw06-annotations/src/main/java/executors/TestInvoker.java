@@ -7,17 +7,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-class TestInstance {
+class TestInvoker {
     List<Method> before;
     List<Method> after;
     Method currentMethod;
     Object instance;
 
-    public TestInstance(List<Method> before, List<Method> after, Method currentMethod, Object instance) {
+    public TestInvoker(List<Method> before, List<Method> after, Method currentMethod, Class<?> clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         this.before = before;
         this.after = after;
         this.currentMethod = currentMethod;
-        this.instance = instance;
+        this.instance = clazz.getConstructor().newInstance();
     }
 
     public void invoke() {
@@ -25,9 +25,6 @@ class TestInstance {
             invokeWithRuntimeException(instance, method);
         }
         invokeTestMethod(instance, currentMethod);
-        for (Method method : after) {
-            invokeWithRuntimeException(instance, method);
-        }
     }
 
     private void invokeWithRuntimeException(Object instance, Method method) {
@@ -43,6 +40,10 @@ class TestInstance {
             method.invoke(instance);
         } catch (Throwable e) {
             throw new TestExecutionException("Ошибка исполнения теста: ", e);
+        } finally {
+            for (Method afterMethod : after) {
+                invokeWithRuntimeException(instance, afterMethod);
+            }
         }
     }
 }

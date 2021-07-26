@@ -1,63 +1,74 @@
 package executors;
 
-import annotations.After;
-import annotations.Before;
-import annotations.Test;
 import exceptions.TestException;
 import exceptions.TestExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TestAnnotationExecutor {
     private final static Logger log = LoggerFactory.getLogger(TestAnnotationExecutor.class);
 
-    public void execute(String className) {
+    public static void execute(String className) {
         try {
             Class<?> clazz = Class.forName(className);
-            Method[] methods = clazz.getDeclaredMethods();
-            List<Method> before = new ArrayList<>();
-            List<Method> after = new ArrayList<>();
-            List<Method> test = new ArrayList<>();
-            for (Method method : methods) {
-                Annotation[] annotations = method.getAnnotations();
-                for (Annotation annotation : annotations) {
-                    if (annotation.annotationType().equals(After.class) && method.getParameterCount() == 0) {
-                        after.add(method);
-                    }
-                    if (annotation.annotationType().equals(Before.class) && method.getParameterCount() == 0) {
-                        before.add(method);
-                    }
-                    if (annotation.annotationType().equals(Test.class) && method.getParameterCount() == 0) {
-                        test.add(method);
-                    }
-                }
-            }
+            MethodContainer container = new MethodContainer(clazz);
 
-            List<String> succeed = new ArrayList<>();
-            List<String> failed = new ArrayList<>();
+            List<ExecutionResult> list =  execute(container, clazz);
 
-            for (Method method : test) {
-                Object instance = clazz.getConstructor().newInstance();
-                TestInstance inst = new TestInstance(before, after, method, instance);
-                try {
-                    inst.invoke();
-                    succeed.add(method.getName());
-                } catch (TestExecutionException e) {
-                    failed.add(method.getName());
-                }
-            }
-
-            log.info("Succeed {} : {}\n Failed {} : {}",
-                    succeed.size(), String.join("; ", succeed),
-                    failed.size(), String.join("; ", failed));
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            log.info("{} tests:\n Succeed: {} \n Failed: {} \n {}", list.size(),
+                    list.stream().filter(ExecutionResult::isPassed).count(),
+                    list.stream().filter(e -> !e.isPassed()).count(),
+                    list.toString());
+        } catch (ClassNotFoundException e) {
             throw new TestException("Ошибка исполнения теста: ", e);
+        }
+    }
+
+    private static List<ExecutionResult> execute(MethodContainer container, Class<?> clazz) {
+        return container.getTest().stream()
+                .map(method -> invokeTestMethod(container, clazz, method))
+                .collect(Collectors.toList());
+    }
+
+    private static ExecutionResult invokeTestMethod(MethodContainer container, Class<?> clazz, Method method) {
+        try {
+            TestInvoker invoker = new TestInvoker(container.getBefore(), container.getAfter(), method, clazz);
+            invoker.invoke();
+            return new ExecutionResult(ExecutionResult.Result.PASSED, method.getName());
+        } catch (TestExecutionException e) {
+            return new ExecutionResult(ExecutionResult.Result.FAILED, method.getName());
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            throw new TestException("Ошибка исполнения теста: ", e);
+        }
+    }
+
+    private static class ExecutionResult {
+
+        private final Result result;
+        private final String methodName;
+
+        public ExecutionResult(Result result, String methodName) {
+            this.result = result;
+            this.methodName = methodName;
+        }
+
+        public boolean isPassed() {
+            return this.result.equals(Result.PASSED);
+        }
+
+        @Override
+        public String toString() {
+            return this.methodName + " : " + this.result.name();
+        }
+
+        enum Result {
+            FAILED,
+            PASSED
         }
     }
 
