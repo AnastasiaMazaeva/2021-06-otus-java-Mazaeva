@@ -5,7 +5,6 @@ import exceptions.TestExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ public class TestAnnotationExecutor {
                     list.stream().filter(e -> !e.isPassed()).count(),
                     list.toString());
         } catch (ClassNotFoundException e) {
-            throw new TestException("Ошибка исполнения теста: ", e);
+            throw new TestException("Ошибка определения класса ", e);
         }
     }
 
@@ -39,37 +38,9 @@ public class TestAnnotationExecutor {
         try {
             TestInvoker invoker = new TestInvoker(container.getBefore(), container.getAfter(), method, clazz);
             invoker.invoke();
-            return new ExecutionResult(ExecutionResult.Result.PASSED, method.getName());
+            return new ExecutionResult(TestExecutionResult.PASSED, method.getName());
         } catch (TestExecutionException e) {
-            return new ExecutionResult(ExecutionResult.Result.FAILED, method.getName());
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            throw new TestException("Ошибка исполнения теста: ", e);
+            return new ExecutionResult(TestExecutionResult.FAILED, method.getName());
         }
     }
-
-    private static class ExecutionResult {
-
-        private final Result result;
-        private final String methodName;
-
-        public ExecutionResult(Result result, String methodName) {
-            this.result = result;
-            this.methodName = methodName;
-        }
-
-        public boolean isPassed() {
-            return this.result.equals(Result.PASSED);
-        }
-
-        @Override
-        public String toString() {
-            return this.methodName + " : " + this.result.name();
-        }
-
-        enum Result {
-            FAILED,
-            PASSED
-        }
-    }
-
 }

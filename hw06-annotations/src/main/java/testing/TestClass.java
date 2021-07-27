@@ -20,6 +20,12 @@ public class TestClass {
         log.info("Setting up done, test instance value {}", someTestClass.getValue());
     }
 
+    @Before
+    public void setUpWithRuntimeException() {
+        log.info("Gonna die in setup");
+        throw new RuntimeException("Oh no");
+    }
+
     @After
     public void tearDown() {
         log.info("Tearing down now, test instance value {}", someTestClass.getValue());
