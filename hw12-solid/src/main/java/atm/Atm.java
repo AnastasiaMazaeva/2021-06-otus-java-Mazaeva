@@ -1,6 +1,8 @@
 package atm;
 
 import constants.DenominationConstants;
+import exchange.BanknoteSorter;
+import exchange.BanknoteSorterHungry;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +24,10 @@ public class Atm {
     }
 
     public List<Banknote> give(int sum) {
-        BanknoteSorter sorter = new BanknoteSorter(atmState);
-        return sorter.give(sum);
+        BanknoteSorter sorter = new BanknoteSorterHungry(atmState);
+        List<Banknote> banknotes = sorter.give(sum);
+        banknotes.forEach(b -> atmState.put(b.getDenomination(), atmState.get(b.getDenomination()) - 1));
+        return banknotes;
     }
 
     public void take(List<Banknote> banknotes) {
@@ -31,5 +35,12 @@ public class Atm {
             Integer value = atmState.get(b.getDenomination());
             atmState.put(b.getDenomination(), ++value);
         });
+    }
+
+    public int getBalance() {
+        return atmState.entrySet()
+                .stream()
+                .map(e -> e.getKey() * e.getValue())
+                .mapToInt(Integer::intValue).sum();
     }
 }

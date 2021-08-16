@@ -9,7 +9,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class BanknoteSorterTest {
+class BanknoteSorterHungryTest {
 
     @Test
     void test_okAll() {
@@ -17,21 +17,27 @@ class BanknoteSorterTest {
         atm.take(prepareBanknotes());
         List<Banknote> banknotes = atm.give(500);
         assertEquals(10, banknotes.size());
+        assertEquals(0, atm.getBalance());
     }
+
     @Test
     void test_ok() {
         Atm atm = new Atm();
         atm.take(prepareBanknotes());
         List<Banknote> banknotes = atm.give(60);
         assertEquals(2, banknotes.size());
+        assertEquals(440, atm.getBalance());
     }
+
     @Test
     void test_okBanknote() {
         Atm atm = new Atm();
         atm.take(prepareBanknotes());
         List<Banknote> banknotes = atm.give(50);
         assertEquals(1, banknotes.size());
+        assertEquals(450, atm.getBalance());
     }
+
     @Test
     void test_Exception() {
         Atm atm = new Atm();
