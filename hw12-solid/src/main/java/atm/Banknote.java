@@ -1,18 +1,19 @@
 package atm;
 
-import lombok.Data;
+import constants.Denomination;
+import lombok.Getter;
 
-@Data
+@Getter
 public class Banknote {
 
-    private int denomination;
+    private final Denomination denomination;
 
-    public Banknote(int denomination) {
+    public Banknote(Denomination denomination) {
         this.denomination = denomination;
     }
 
     @Override
     public String toString() {
-        return "Banknote{ denomination=" + denomination + '}';
+        return "Banknote{ denomination=" + denomination.getValue() + '}';
     }
 }

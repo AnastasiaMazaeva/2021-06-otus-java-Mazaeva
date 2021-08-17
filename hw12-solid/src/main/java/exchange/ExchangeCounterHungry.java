@@ -10,23 +10,16 @@ public class ExchangeCounterHungry implements ExchangeCounter {
     @Override
     public List<Integer> exchange(int sum, List<Integer> changeValues) {
         List<Integer> list = new ArrayList<>();
-        for (int value : changeValues) {
-            if (sum <= 0) {
-                break;
-            }
-            if (sum < value) {
-                continue;
-            }
-            if (sum == value) {
+        for (int i = 0; i < changeValues.size() && sum > 0; ++i) {
+            int value = changeValues.get(i);
+            if (sum >= value) {
                 list.add(value);
-                return list;
+                sum -= value;
             }
-            list.add(value);
-            sum = sum - value;
         }
 
         if (sum != 0) {
-            throw new AtmException();
+            throw new AtmException("Невозможно выдать требуемую сумму");
         }
         return list;
     }
