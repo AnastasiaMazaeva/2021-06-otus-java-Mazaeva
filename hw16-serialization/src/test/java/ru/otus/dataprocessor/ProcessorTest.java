@@ -2,12 +2,10 @@ package ru.otus.dataprocessor;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -18,15 +16,15 @@ class ProcessorTest {
 
     @Test
     @DisplayName("Из файла читается json, обрабатывается, результат сериализуется в строку")
-    void processingTest(@TempDir Path tempDir) throws IOException {
-        System.out.println(tempDir);
-
+    void processingTest() throws IOException {
+        String resourceDirectory = Paths.get("src","test","resources").toFile().toString();
         //given
         var inputDataFileName = "inputData.json";
         var outputDataFileName = "outputData.json";
-        var fullOutputFilePath = String.format("%s%s%s",tempDir, File.separator, outputDataFileName);
+        var fullInputPath = String.format("%s%s%s", resourceDirectory, File.separator, inputDataFileName);
+        var fullOutputFilePath = String.format("%s%s%s", resourceDirectory, File.separator, outputDataFileName);
 
-        var loader = new FileLoader(inputDataFileName);
+        var loader = new FileLoader(fullInputPath);
         var processor = new ProcessorAggregator();
         var serializer = new FileSerializer(fullOutputFilePath);
 
