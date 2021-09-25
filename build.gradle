@@ -33,6 +33,8 @@ allprojects {
             dependency("com.fasterxml.jackson.core:jackson-databind:$Versions.jackson")
             dependency("javax.json:javax.json-api:$Versions.javax")
 
+            dependency("org.testcontainers:junit-jupiter:${Versions.testcontainers}")
+            dependency("org.testcontainers:postgresql:${Versions.testcontainers}")
             dependency("org.glassfish:javax.json:${Versions.glassfishJson}")
             dependency("com.google.protobuf:protobuf-java-util:${Versions.protobuf}")
         }
