@@ -7,4 +7,5 @@ include 'hw12-solid'
 include 'hw15-patterns'
 include 'hw16-serialization'
 include 'hw18-jdbc:homework'
+include 'hw21-jpql'
 
