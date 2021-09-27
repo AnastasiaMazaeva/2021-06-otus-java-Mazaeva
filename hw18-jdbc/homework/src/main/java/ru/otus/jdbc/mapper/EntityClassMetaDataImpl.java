@@ -3,7 +3,6 @@ package ru.otus.jdbc.mapper;
 import ru.otus.crm.annotations.Id;
 import ru.otus.exception.CustomJdbcException;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -56,11 +55,6 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
     }
 
     private boolean isId(Field field) {
-        for (Annotation annotation : field.getAnnotations()) {
-            if (Id.class.equals(annotation.annotationType())) {
-                return true;
-            }
-        }
-        return false;
+        return field.getAnnotationsByType(Id.class).length > 0;
     }
 }
