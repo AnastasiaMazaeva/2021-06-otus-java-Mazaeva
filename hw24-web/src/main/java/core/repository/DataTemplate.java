@@ -13,4 +13,8 @@ public interface DataTemplate<T> {
     void insert(Session session, T object);
 
     void update(Session session, T object);
+
+    T findRandom(Session session);
+
+    Optional<T> findByField(Session session, String fieldName, String fieldValue);
 }
