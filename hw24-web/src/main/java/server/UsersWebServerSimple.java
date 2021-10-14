@@ -2,7 +2,7 @@ package server;
 
 
 import com.google.gson.Gson;
-import dao.UserDao;
+import crm.service.DBServiceClient;
 import helpers.FileSystemHelper;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -11,21 +11,19 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import service.TemplateProcessor;
-import servlet.UserCreateServlet;
-import servlet.UsersApiServlet;
 import servlet.UsersServlet;
 
 public class UsersWebServerSimple implements UsersWebServer {
     private static final String START_PAGE_NAME = "index.html";
     private static final String COMMON_RESOURCES_DIR = "static";
 
-    private final UserDao userDao;
+    private final DBServiceClient dbServiceClient;
     private final Gson gson;
     protected final TemplateProcessor templateProcessor;
     private final Server server;
 
-    public UsersWebServerSimple(int port, UserDao userDao, Gson gson, TemplateProcessor templateProcessor) {
-        this.userDao = userDao;
+    public UsersWebServerSimple(int port, DBServiceClient dbServiceClient, Gson gson, TemplateProcessor templateProcessor) {
+        this.dbServiceClient = dbServiceClient;
         this.gson = gson;
         this.templateProcessor = templateProcessor;
         server = new Server(port);
@@ -56,7 +54,7 @@ public class UsersWebServerSimple implements UsersWebServer {
 
         HandlerList handlers = new HandlerList();
         handlers.addHandler(resourceHandler);
-        handlers.addHandler(applySecurity(servletContextHandler, "/users", "/users/*", "/api/user/*"));
+        handlers.addHandler(applySecurity(servletContextHandler, "/users"));
 
 
         server.setHandler(handlers);
@@ -77,9 +75,7 @@ public class UsersWebServerSimple implements UsersWebServer {
 
     private ServletContextHandler createServletContextHandler() {
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        servletContextHandler.addServlet(new ServletHolder(new UsersServlet(templateProcessor, userDao)), "/users");
-        servletContextHandler.addServlet(new ServletHolder(new UserCreateServlet(userDao, gson)), "/api/users/create");
-        servletContextHandler.addServlet(new ServletHolder(new UsersApiServlet(userDao, gson)), "/api/user/*");
+        servletContextHandler.addServlet(new ServletHolder(new UsersServlet(templateProcessor, dbServiceClient, gson)), "/users");
         return servletContextHandler;
     }
 }

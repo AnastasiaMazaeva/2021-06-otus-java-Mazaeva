@@ -1,10 +1,15 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import core.repository.DataTemplate;
+import core.repository.DataTemplateHibernate;
+import core.repository.HibernateUtils;
+import core.sessionmanager.TransactionManager;
+import core.sessionmanager.TransactionManagerHibernate;
 import crm.dbmigrations.MigrationsExecutorFlyway;
 import crm.model.Client;
-import crm.model.Role;
-import dao.DbUserDao;
-import dao.UserDao;
+import crm.service.DBServiceClient;
+import crm.service.DbServiceClientImpl;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import server.UsersWebServer;
 import server.UsersWebServerWithFilterBasedSecurity;
@@ -21,10 +26,7 @@ import service.UserAuthServiceImpl;
 
     // Страница пользователей
     http://localhost:8081/users
-    http://localhost:8081/users/create
 
-    // REST сервис
-    http://localhost:8081/api/user/3
 */
 public class WebServerWithFilterBasedSecurityDemo {
     private static final int WEB_SERVER_PORT = 8081;
@@ -33,15 +35,19 @@ public class WebServerWithFilterBasedSecurityDemo {
     public static void main(String[] args) throws Exception {
         Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
         MigrationsExecutorFlyway flyway = new MigrationsExecutorFlyway(configuration);
+
         flyway.executeMigrations();
-        UserDao userDao = new DbUserDao(configuration);
-        userDao.save(new Client("admin", Role.ADMIN, "admin"));
+
+        SessionFactory sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class);
+        TransactionManager transactionManager = new TransactionManagerHibernate(sessionFactory);
+        DataTemplate<Client> clientTemplate = new DataTemplateHibernate<>(Client.class);
+        DBServiceClient dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
-        UserAuthService authService = new UserAuthServiceImpl(userDao);
+        UserAuthService authService = new UserAuthServiceImpl(dbServiceClient);
 
         UsersWebServer usersWebServer = new UsersWebServerWithFilterBasedSecurity(WEB_SERVER_PORT,
-                authService, userDao, gson, templateProcessor);
+                authService, dbServiceClient, gson, templateProcessor);
 
         usersWebServer.start();
         usersWebServer.join();

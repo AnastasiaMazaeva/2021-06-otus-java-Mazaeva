@@ -8,13 +8,9 @@ import java.util.Optional;
 
 public interface DBServiceClient {
 
-    Client save(Client client);
-
-    Optional<Client> get(long id);
+    void save(Client client);
 
     List<Client> findAll();
 
-    Client findRandom();
-
-    Optional<Client> findByField(String fieldName, String fieldValue);
+    Optional<Client> findByLogin(String fieldValue);
 }

@@ -14,8 +14,11 @@ create sequence hibernate_sequence start with 1 increment by 1;
 create table client
 (
     id   bigint not null primary key,
-    name varchar(50),
+    login varchar(50),
     role varchar(50),
     password varchar(100)
 );
+
+insert into client (id, login, role, password) VALUES (1, 'admin', 'ADMIN', 'admin');
+insert into client (id, login, role, password) VALUES (2, 'user', 'USER', 'user');
 

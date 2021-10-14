@@ -21,8 +21,8 @@ public class DbServiceClientImpl implements DBServiceClient {
     }
 
     @Override
-    public Client save(Client client) {
-        return transactionManager.doInTransaction(session -> {
+    public void save(Client client) {
+        transactionManager.doInTransaction(session -> {
             var clientCloned = client.clone();
             if (client.getId() == null) {
                 clientDataTemplate.insert(session, clientCloned);
@@ -36,15 +36,6 @@ public class DbServiceClientImpl implements DBServiceClient {
     }
 
     @Override
-    public Optional<Client> get(long id) {
-        return transactionManager.doInTransaction(session -> {
-            var clientOptional = clientDataTemplate.findById(session, id);
-            log.info("client: {}", clientOptional);
-            return clientOptional;
-        });
-    }
-
-    @Override
     public List<Client> findAll() {
         return transactionManager.doInTransaction(session -> {
             var clientList = clientDataTemplate.findAll(session);
@@ -54,18 +45,9 @@ public class DbServiceClientImpl implements DBServiceClient {
     }
 
     @Override
-    public Client findRandom() {
+    public Optional<Client> findByLogin(String fieldValue) {
         return transactionManager.doInTransaction(session -> {
-            var clientOptional = clientDataTemplate.findRandom(session);
-            log.info("client: {}", clientOptional);
-            return clientOptional;
-        });
-    }
-
-    @Override
-    public Optional<Client> findByField(String fieldName, String fieldValue) {
-        return transactionManager.doInTransaction(session -> {
-            var clientOptional = clientDataTemplate.findByField(session, fieldName, fieldValue);
+            var clientOptional = clientDataTemplate.findByField(session, "login", fieldValue);
             log.info("client: {}", clientOptional);
             return clientOptional;
         });

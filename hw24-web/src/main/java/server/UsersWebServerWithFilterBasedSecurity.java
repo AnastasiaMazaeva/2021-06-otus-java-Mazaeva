@@ -2,7 +2,7 @@ package server;
 
 
 import com.google.gson.Gson;
-import dao.UserDao;
+import crm.service.DBServiceClient;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -19,10 +19,10 @@ public class UsersWebServerWithFilterBasedSecurity extends UsersWebServerSimple 
 
     public UsersWebServerWithFilterBasedSecurity(int port,
                                                  UserAuthService authService,
-                                                 UserDao userDao,
+                                                 DBServiceClient dbServiceClient,
                                                  Gson gson,
                                                  TemplateProcessor templateProcessor) {
-        super(port, userDao, gson, templateProcessor);
+        super(port, dbServiceClient, gson, templateProcessor);
         this.authService = authService;
     }
 
