@@ -14,4 +14,8 @@ public interface Versions {
     String testcontainers = "1.15.3";
     String hikariCp = "5.0.0";
     String logback = "1.2.6";
+    String jetty = "11.0.6";
+    String freemarker = "2.3.31";
+
+    String gson = "2.8.8";
 }
