@@ -9,6 +9,7 @@ import ru.otus.appcontainer.api.AppComponentsContainerConfig;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,6 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
 
     private final List<Object> appComponents = new ArrayList<>();
     private final Map<String, Object> appComponentsByName = new HashMap<>();
-    private final Map<Class<?>, Object> appComponentsByClass = new HashMap<>();
 
     public AppComponentsContainerImpl(Class<?> initialConfigClass) {
         processConfig(initialConfigClass);
@@ -27,16 +27,9 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
         checkConfigClass(configClass);
         Object config = invokeConfigConstructor(configClass);
         Reflections reflections = new Reflections(configClass, new MethodAnnotationsScanner());
-        reflections.getMethodsAnnotatedWith(AppComponent.class).stream().sorted((o1, o2) -> {
-//            AppComponent appComponent1 = o1.getDeclaredAnnotation(AppComponent.class);
-//            AppComponent appComponent2 = o2.getDeclaredAnnotation(AppComponent.class);
-//            return appComponent1.order() - appComponent2.order();
-            int parameterCount1 = o1.getParameterCount();
-            int parameterCount2 = o2.getParameterCount();
-            return parameterCount1 - parameterCount2;
-        }).forEach(method -> {
-            registerAppComponent(config, method);
-        });
+        reflections.getMethodsAnnotatedWith(AppComponent.class).stream()
+                .sorted(Comparator.comparingInt(Method::getParameterCount))
+                .forEach(method -> registerAppComponent(config, method));
     }
 
     private Object invokeConfigConstructor(Class<?> configClass) {
@@ -53,10 +46,9 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
             Class<?>[] parameterTypes = method.getParameterTypes();
             Object[] args = new Object[method.getParameterCount()];
             for (int i = 0; i < parameterTypes.length; ++i) {
-                args[i] = appComponentsByClass.get(parameterTypes[i]);
+                args[i] = getAppComponent(parameterTypes[i]);
             }
             Object result = method.invoke(config, args);
-            appComponentsByClass.put(method.getReturnType(), result);
             appComponentsByName.put(appComponent.name(), result);
             appComponents.add(result);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -81,6 +73,9 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
 
     @Override
     public <C> C getAppComponent(String componentName) {
+        if (!appComponentsByName.containsKey(componentName)) {
+            throw new IllegalArgumentException();
+        }
         return (C) appComponentsByName.get(componentName);
     }
 }
