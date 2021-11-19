@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.otus.core.sessionmanager.TransactionManager;
 import ru.otus.crm.model.Client;
-import ru.otus.crm.model.Role;
 import ru.otus.crm.repository.ClientRepository;
 
 import java.util.List;
@@ -39,8 +38,4 @@ public class DbServiceClientImpl implements DBServiceClient {
         return clientList;
     }
 
-    @Override
-    public void update(Long id, String login, Role role) {
-        clientRepository.updateNameAndRole(id, login, role);
-    }
 }

@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.otus.crm.model.Client;
 import ru.otus.crm.service.DBServiceClient;
 import ru.otus.web.dto.ClientDto;
 
@@ -18,23 +17,23 @@ public class UserController {
 
     @GetMapping("/users")
     public ModelAndView getUsers() {
-        return getModel();
+        return getModel("users");
     }
 
     @PostMapping("/users")
     public ModelAndView createUser(@ModelAttribute("clientDto") ClientDto client) {
-        clientService.save(new Client(client.getLogin(), client.getRole()));
-        return getModel();
+        clientService.save(client.toClient());
+        return getModel("users");
     }
 
     @PostMapping("/users/edit")
     public ModelAndView updateUser(@ModelAttribute("updateClientDto") ClientDto client) {
-        clientService.update(client.getId(), client.getLogin(), client.getRole());
-        return getModel();
+        clientService.save(client.toClient());
+        return getModel("redirect:/users");
     }
 
-    private ModelAndView getModel() {
-        ModelAndView model = new ModelAndView("users");
+    private ModelAndView getModel(String viewName) {
+        ModelAndView model = new ModelAndView(viewName);
         model.addObject("clientDto", new ClientDto());
         model.addObject("updateClientDto", new ClientDto());
         model.addObject("users", clientService.findAll());
