@@ -5,38 +5,48 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Executors {
 
-    private static final int sharingThreads = 2;
-    private static final int maxPriority = Thread.NORM_PRIORITY;
-    private static final Resource resource = new Resource(maxPriority); // static!
+    private int counter = 1;
+    private String lastThreadName = "second";
+    private static final String lastThreadReading = "second";
 
-    public static void main(String[] args) throws InterruptedException {
-
-        for (int i = 0; i < sharingThreads; ++i) {
-            Subscriber subscriber = new Subscriber(resource, sharingThreads);
-            subscriber.setPriority(maxPriority - i);
-            subscriber.start();
-        }
-
-        for (int i = 0; i < 9; ++i) {
-            syncCall(1);
-        }
-
-        for (int i = 10; i > 1; --i) {
-            syncCall(-1);
-        }
-        resource.setStopped(true);
-    }
-
-    public static void syncCall(int delta) throws InterruptedException {
-        synchronized (resource) {
-            while (resource.getSharedBy() < sharingThreads) {
-                resource.wait();
+    private synchronized void action(String currentThreadName) {
+        try {
+            for (int i = 1; i < 10; i++) {
+                while (lastThreadName.equals(currentThreadName)) {
+                    this.wait();
+                }
+                Thread.sleep(1_000);
+                log.info("{} : {}", Thread.currentThread().getName(), counter);
+                if (currentThreadName.equals(lastThreadReading)) {
+                    counter++;
+                }
+                lastThreadName = currentThreadName;
+                this.notifyAll();
             }
-            resource.add(delta);
-            resource.setSharedBy(0);
-            resource.setPriority(maxPriority);
-            resource.notifyAll();
+
+            for (int i = 10; i > 0; i--) {
+                while (lastThreadName.equals(currentThreadName)) {
+                    this.wait();
+                }
+                Thread.sleep(1_000);
+                log.info("{} : {}", Thread.currentThread().getName(), counter);
+                if (currentThreadName.equals(lastThreadReading)) {
+                    counter--;
+                }
+                lastThreadName = currentThreadName;
+                this.notifyAll();
+            }
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
         }
     }
+
+    public static void main(String[] args) {
+
+        Executors executors = new Executors();
+        new Thread(() -> executors.action("first")).start();
+        new Thread(() -> executors.action("second")).start();
+    }
+
 
 }
