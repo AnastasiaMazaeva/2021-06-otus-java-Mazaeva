@@ -24,7 +24,7 @@ public class Subscriber extends Thread {
                             || resource.getPriority() > this.getPriority()) {
                         resource.wait();
                     }
-                    resource.announceCounter();
+                    log.info("{} : {}", Thread.currentThread().getName(), currentValue);
                     currentValue = resource.getCounter();
                     resource.setSharedBy(resource.getSharedBy() + 1);
                     resource.setPriority(resource.getPriority() - 1);

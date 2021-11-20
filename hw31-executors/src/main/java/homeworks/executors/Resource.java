@@ -2,9 +2,11 @@ package homeworks.executors;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 public class Resource {
 
     @Setter
@@ -25,20 +27,8 @@ public class Resource {
         return counter.get();
     }
 
-    public synchronized boolean isStopped() {
+    public boolean isStopped() {
         return stopped;
-    }
-
-    public void announceCounter() {
-        System.out.println(Thread.currentThread().getName() + " : " + counter);
-    }
-
-    public void increment() {
-        counter.incrementAndGet();
-    }
-
-    public void decrement() {
-        counter.decrementAndGet();
     }
 
     public void add(int delta) {
