@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+    id 'io.franzbecker.gradle-lombok' version '4.0.0'
+}
+group 'ru.otus'
+version 'unspecified'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation("ch.qos.logback:logback-classic")
+}
