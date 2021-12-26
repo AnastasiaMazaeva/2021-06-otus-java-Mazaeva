@@ -20,4 +20,8 @@ public interface Versions {
     String reflections = "0.9.12";
 
     String gson = "2.8.8";
+
+    String sockjs = "1.1.2";
+    String stomp = "2.3.3-1";
+    String bootstrap = "4.4.1-1";
 }
