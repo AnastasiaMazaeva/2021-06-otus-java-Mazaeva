@@ -1,0 +1,45 @@
+<html xmlns="http://www.w3.org/1999/xhtml" content="text/html;">
+<meta charset="UTF-8">
+<head>
+    <title>Пользователи</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/main.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="app.js"></script>
+</head>
+
+<body onload="init()">
+
+<table id="userTable" style="width: 400px">
+    <thead>
+        <tr>
+            <td style="width: 50px">Id</td>
+            <td style="width: 150px">Роль</td>
+            <td style="width: 100px">Логин</td>
+        </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+</table>
+<h4>Добавить пользователя</h4>
+<form id="createForm">
+    <input type="text" id = "userLoginTextBox" placeholder="Логин">
+    <select name="Роль" id="userRoleSelectBox">
+        <option value="USER">Пользователь</option>
+        <option value="ADMIN" selected>Администратор</option>
+    </select>
+    <button id ="create" type="submit" value="Создать">Create</button>
+</form>
+<h4>Изменить пользователя</h4>
+<form id="editForm">
+    <input type="text" id = "userIdTextBox" placeholder="ID">
+    <input type="text" id = "userLoginTextBoxUpdate" placeholder="Логин">
+    <select name="Роль" id="userRoleSelectBoxUpdate">
+        <option value="USER">Пользователь</option>
+        <option value="ADMIN" selected>Администратор</option>
+    </select>
+    <button id="edit" type="submit" value="Изменить">Edit</button>
+</form>
+</body>
+</html>

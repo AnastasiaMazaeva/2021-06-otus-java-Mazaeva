@@ -14,4 +14,7 @@ include 'hw24-web'
 include 'hw25-di'
 include 'hw31-executors'
 include 'hw28-jdbc'
+include 'hw32-message'
+include 'hw32-message:MessageSystem'
+include 'hw32-message:MessageSystemApp'
 
