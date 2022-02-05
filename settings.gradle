@@ -17,4 +17,5 @@ include 'hw28-jdbc'
 include 'hw32-message'
 include 'hw32-message:MessageSystem'
 include 'hw32-message:MessageSystemApp'
+include 'hw33-multiprocess'
 
