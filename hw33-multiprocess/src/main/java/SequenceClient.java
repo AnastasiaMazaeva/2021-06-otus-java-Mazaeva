@@ -41,8 +41,7 @@ public class SequenceClient {
         for (int i = 0; i < 50 ; ++i) {
             System.out.println("Current value : " + currentValue);
             Thread.sleep(1000);
-            currentValue = currentValue + serverValue.get() + 1;
-            serverValue.set(0);
+            currentValue = currentValue + serverValue.getAndSet(0) + 1;
         }
         System.out.println("Client done counting");
 
