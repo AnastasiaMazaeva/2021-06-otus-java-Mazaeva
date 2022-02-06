@@ -10,7 +10,7 @@ public class SequenceClient {
     private static final int SERVER_PORT = 50051;
 
     public static void main(String[] args) throws InterruptedException {
-        AtomicInteger currentValue = new AtomicInteger(0);
+        AtomicInteger serverValue = new AtomicInteger(0);
         ManagedChannel channel = ManagedChannelBuilder.forAddress(SERVER_HOST, SERVER_PORT)
                 .usePlaintext()
                 .build();
@@ -22,7 +22,7 @@ public class SequenceClient {
             @Override
             public void onNext(Sequence.SequenceResponse value) {
                 System.out.println("Server sent value : " + value.getCurrentValue());
-                currentValue.addAndGet(value.getCurrentValue());
+                serverValue.set(value.getCurrentValue());
             }
 
             @Override
@@ -37,10 +37,12 @@ public class SequenceClient {
             }
         });
 
+        int currentValue = 0;
         for (int i = 0; i < 50 ; ++i) {
-            currentValue.incrementAndGet();
             System.out.println("Current value : " + currentValue);
             Thread.sleep(1000);
+            currentValue = currentValue + serverValue.get() + 1;
+            serverValue.set(0);
         }
         System.out.println("Client done counting");
 
