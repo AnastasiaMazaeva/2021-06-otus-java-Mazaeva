@@ -1,0 +1,17 @@
+
+syntax = "proto3";
+
+message SequenceRequest {
+    int32 firstValue = 1;
+    int32 lastValue = 2;
+}
+
+message SequenceResponse {
+    int32 currentValue = 1;
+}
+
+message Empty {}
+
+service SequenceService {
+    rpc askForSequence(SequenceRequest) returns (stream SequenceResponse);
+}
