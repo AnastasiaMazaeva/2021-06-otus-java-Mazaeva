@@ -4,7 +4,7 @@ import io.grpc.ServerBuilder;
 import java.io.IOException;
 
 public class SequenceServer {
-    private static final int PORT = 50051;
+    private static final int PORT = 5051;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         SequenceServiceImpl sequenceService = new SequenceServiceImpl();

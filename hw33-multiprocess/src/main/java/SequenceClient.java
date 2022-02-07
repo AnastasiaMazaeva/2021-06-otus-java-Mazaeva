@@ -3,14 +3,14 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class SequenceClient {
     private static final String SERVER_HOST = "localhost";
-    private static final int SERVER_PORT = 50051;
+    private static final int SERVER_PORT = 5051;
+    private static final Object monitor = new Object();
+    private static int serverValue;
 
     public static void main(String[] args) throws InterruptedException {
-        AtomicInteger serverValue = new AtomicInteger(0);
         ManagedChannel channel = ManagedChannelBuilder.forAddress(SERVER_HOST, SERVER_PORT)
                 .usePlaintext()
                 .build();
@@ -22,7 +22,7 @@ public class SequenceClient {
             @Override
             public void onNext(Sequence.SequenceResponse value) {
                 System.out.println("Server sent value : " + value.getCurrentValue());
-                serverValue.set(value.getCurrentValue());
+                setValue(value.getCurrentValue());
             }
 
             @Override
@@ -41,15 +41,26 @@ public class SequenceClient {
         for (int i = 0; i < 50 ; ++i) {
             System.out.println("Current value : " + currentValue);
             Thread.sleep(1000);
-            synchronized (serverValue) {
-                currentValue = currentValue + serverValue.get() + 1;
-                serverValue.set(0);
-            }
+            currentValue = getCurrentValue(currentValue);
         }
         System.out.println("Client done counting");
 
         latch.await();
 
         channel.shutdown();
+    }
+
+    private static int getCurrentValue(int currentValue) {
+        synchronized (monitor) {
+            int result = currentValue + serverValue + 1;
+            serverValue = 0;
+            return result;
+        }
+    }
+
+    private static void setValue(int value) {
+        synchronized (monitor) {
+            serverValue = value;
+        }
     }
 }
